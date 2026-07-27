@@ -1,7 +1,27 @@
+Index.tsx
+
 import { View } from "react-native";
+import { hasPassword } from "../hooks/passworded";
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
+
+useEffect(()=>{
+  router.push()
+}, [])
 
 export default function Index() {
-  return <View></View>;
+  if hasPassword() {
+    return (
+    <View>
+      {hasPassword() ? (
+        <>{/* insert component to display here */}</>
+      ) : (
+        <View></View>
+      )}
+    </View>
+  );
+  }
+  
 }
 /*
 Landing page when app starts up. If a user has chosen to add password protection 
