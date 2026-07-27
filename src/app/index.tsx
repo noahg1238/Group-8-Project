@@ -1,5 +1,3 @@
-Index.tsx
-
 import { View } from "react-native";
 import { hasPassword } from "../hooks/passworded";
 import { useEffect } from "react";
