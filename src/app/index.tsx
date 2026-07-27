@@ -1,25 +1,31 @@
-import { View } from "react-native";
-import { hasPassword } from "../hooks/passworded";
+import { Link, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { useRouter } from "expo-router";
-
-useEffect(()=>{
-  router.push()
-}, [])
+import { ActivityIndicator, Text, View } from "react-native";
+import { hasPassword } from "./hooks/passworded";
 
 export default function Index() {
-  if hasPassword() {
+  if (hasPassword()) {
+    useEffect(() => {
+      const router = useRouter();
+      router.replace("/home");
+    }, []);
+
     return (
+      <View className="items-center">
+        <ActivityIndicator size="large" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+  return (
     <View>
-      {hasPassword() ? (
-        <>{/* insert component to display here */}</>
-      ) : (
-        <View></View>
-      )}
+      {/* component here*/}
+      <Text>enter password</Text>
+      <Link href={"/home"} className="text-lg">
+        Home
+      </Link>
     </View>
   );
-  }
-  
 }
 /*
 Landing page when app starts up. If a user has chosen to add password protection 
