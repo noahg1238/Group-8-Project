@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# PlanB
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Cross-platform calendar app (iOS, Android, web) built with Expo. With dark liquid-glass panels, month/year views, event CRUD, settings, and a numeric passkey.
 
-## Get started
+## Requirements
 
-1. Install dependencies
+- Node.js 20+
+- npm 10+
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run
 
 ```bash
-npm run reset-project
+npm install
+npm run web # then open http://localhost:8081 or press w in the terminal
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+**Metro often shows 99% forever in the terminal** — that is normal. The bundle completes when the browser requests it. If nothing loads, open http://localhost:8081 manually or press `w` in the terminal.
 
-## Learn more
+Fresh install requires `babel-preset-expo` (included in devDependencies). Native SQLite is excluded from the web bundle via `db.web.ts` + Metro stub.
 
-To learn more about developing your project with Expo, look at the following resources:
+| Command           | Description                                   |
+| ----------------- | --------------------------------------------- |
+| `npm start`       | Expo dev server (choose platform in terminal) |
+| `npm run web`     | Web only                                      |
+| `npm run ios`     | iOS simulator                                 |
+| `npm run android` | Android emulator                              |
+| `npm install`     | Install deps                                  |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project layout
 
-## Join the community
+```
+src/
+├── app/
+├── components/
+│   ├── calendar/
+│   ├── events/
+│   ├── search/
+│   └── ui/
+├── database/
+└── design/
+assets/
+└── images/
+```
 
-Join our community of developers creating universal apps.
+### Database folder
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| File             | Role                                     |
+| ---------------- | ---------------------------------------- |
+| `db.ts`          | SQLite access (native)                   |
+| `webDb.ts`       | localStorage stub (web)                  |
+| `migrations.ts`  | Schema setup                             |
+| `events.ts`      | Event CRUD + React Query hooks           |
+| `stores.ts`      | Zustand (calendar, settings, auth flags) |
+| `auth.ts`        | Passkey hash + secure storage            |
+| `queryClient.ts` | TanStack Query client                    |
+| `types.ts`       | Event + DB row types                     |
+
+## Routes
+
+| Path                 | Screen                             |
+| -------------------- | ---------------------------------- |
+| `/`                  | Home — month calendar + day events |
+| `/year_overview`     | 12 mini-month grid                 |
+| `/event_details?id=` | Event detail                       |
+| `/add_event_page`    | Create event (`?id=` for edit)     |
+| `/settings`          | App settings                       |
+| `/passkey_page`      | 4-digit passkey setup / entry      |
+
+## Data & state
+
+- **Native:** `expo-sqlite` with migrations in `src/database/migrations.ts`
+- **Web:** `localStorage` via `src/database/webDb.ts` (same event shape)
+- **Events:** TanStack Query hooks and CRUD in `src/database/events.ts`
+- **UI prefs / calendar month / auth flags:** Zustand in `src/database/stores.ts`
+- **Passkey:** `src/database/auth.ts` (`expo-crypto` + `expo-secure-store`; web falls back to localStorage)
+
+## Design system
+
+- **Tokens:** `src/design/tokens.ts` — colors, spacing, `GlassColors`, shadows
+- **Glass UI:** `LiquidGlassCard`, `GlassDepthLayer`, `GlassScreen` in `src/components/ui/`
+- **Motion:** shared Reanimated presets in `src/design/motion.ts`
+- **Web glass CSS:** `global.css` (`.liquid-glass`, `.liquid-glass-event`, etc.)
+
+Components use **named exports**; only `app/` screens use `default` (Expo Router).
