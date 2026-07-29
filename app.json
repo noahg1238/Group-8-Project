@@ -1,0 +1,65 @@
+{
+	"expo": {
+		"name": "PlanB",
+		"slug": "planb",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/images/icon.png",
+		"scheme": "planb",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"ios": {
+			"supportsTablet": true,
+			"bundleIdentifier": "com.planb.calendar",
+			"infoPlist": {
+				"NSFaceIDUsageDescription": "PlanB uses Face ID to protect your calendar"
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"backgroundColor": "#242736",
+				"foregroundImage": "./assets/images/android-icon-foreground.png",
+				"backgroundImage": "./assets/images/android-icon-background.png",
+				"monochromeImage": "./assets/images/android-icon-monochrome.png"
+			},
+			"edgeToEdgeEnabled": true,
+			"predictiveBackGestureEnabled": false,
+			"package": "com.planb.calendar",
+			"permissions": ["USE_BIOMETRIC"]
+		},
+		"web": {
+			"output": "single",
+			"favicon": "./assets/images/favicon.png",
+			"bundler": "metro"
+		},
+		"transpilePackages": ["zustand"],
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"image": "./assets/images/splash-icon.png",
+					"imageWidth": 200,
+					"resizeMode": "contain",
+					"backgroundColor": "#242736",
+					"dark": {
+						"backgroundColor": "#242736"
+					}
+				}
+			],
+			[
+				"expo-secure-store",
+				{
+					"configureAndroidBackup": true,
+					"faceIDPermission": "Allow PlanB to use Face ID to access your secure data."
+				}
+			],
+			"@react-native-community/datetimepicker",
+			"expo-sqlite"
+		],
+		"experiments": {
+			"typedRoutes": true,
+			"reactCompiler": false
+		}
+	}
+}
