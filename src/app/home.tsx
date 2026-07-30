@@ -1,8 +1,12 @@
 import React from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 const home = () => {
-  return <View className="bg-blue-500">This is the Home screen</View>;
+  return (
+    <View className="bg-blue-500">
+      <Text>This is the Home screen</Text>
+    </View>
+  );
 };
 /*
 This will be the current month view. When the user clicks the arrows to switch between months it

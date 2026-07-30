@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const [passworded, setPassworded] = useState(false);
+const [passworded, setPassworded] = useState(true);
 
 export function setHasPassword(value: boolean) {
   setPassworded(value);
