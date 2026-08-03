@@ -14,6 +14,7 @@ import { GlassTopBar } from "../components/ui/GlassTopBar";
 import { LiquidGlassCard } from "../components/ui/LiquidGlassCard";
 import { MotionView } from "../components/ui/MotionView";
 import { getEventsByMonth, useEventsByMonth } from "../database/events";
+import { initializeDatabase } from "../database/migrations";
 import { useCalendarStore } from "../database/stores";
 import type { Event } from "../database/types";
 import { readAllEvents, readEventsForMonth } from "../database/webDb";
@@ -71,6 +72,7 @@ export default function Home() {
 
     async function loadWebEvents() {
       try {
+        await initializeDatabase();
         const fromDb = await getEventsByMonth(year, month);
         setWebEvents(
           fromDb.length > 0 ? fromDb : readEventsForMonth(year, month),
@@ -243,7 +245,7 @@ const styles = StyleSheet.create({
   },
   calendarCard: {
     width: "100%",
-    overflow: "hidden",
+    overflow: "visible",
   },
   eventsScroll: {
     flex: 1,
@@ -253,6 +255,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.screen,
     paddingTop: 4,
     paddingBottom: 32,
-    gap: 12,
+    columnGap: 12,
   },
 });
