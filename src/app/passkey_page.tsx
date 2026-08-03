@@ -1,7 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Animated, Platform, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AccessibilityInfo, Animated, Platform, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlassScreen } from "../components/ui/GlassScreen";
 import { Icon } from "../components/ui/Icon";
 import { LiquidGlassCard } from "../components/ui/LiquidGlassCard";
@@ -37,7 +38,16 @@ function PinDot({ filled }: { filled: boolean }) {
 
 function PinDots({ filled }: { filled: number }) {
 	return (
-		<View style={styles.dotsRow}>
+		<View
+			style={styles.dotsRow}
+			accessible
+			accessibilityRole="progressbar"
+			accessibilityLabel="Passkey entry progress"
+			accessibilityValue={{ min: 0, max: DOT_COUNT, now: filled }}
+			accessibilityLiveRegion="polite"
+			// The dots are decorative individually; expose progress as a single node.
+			importantForAccessibility="yes"
+		>
 			{Array.from({ length: DOT_COUNT }).map((_, index) => (
 				<PinDot key={index} filled={index < filled} />
 			))}
@@ -55,8 +65,16 @@ function triggerSuccessHaptic() {
 	void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 }
 
+// Light tactile feedback on each keypress. If <PasskeyKey /> already fires its
+// own haptic on press, delete these two calls to avoid a double-buzz.
+function triggerSelectionHaptic() {
+	if (Platform.OS === "web") return;
+	void Haptics.selectionAsync();
+}
+
 export default function PasskeyPage() {
 	const router = useRouter();
+	const insets = useSafeAreaInsets();
 	const { setHasPassword, setAuthenticated } = useAuthStore();
 	const [mode, setMode] = useState<PasskeyMode>("verify");
 	const [pin, setPin] = useState("");
@@ -67,6 +85,7 @@ export default function PasskeyPage() {
 	const shakeAnim = useRef(new Animated.Value(0)).current;
 	const successScale = useRef(new Animated.Value(0)).current;
 	const successOpacity = useRef(new Animated.Value(0)).current;
+	const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
 		void hasPassword().then(exists => {
@@ -74,7 +93,20 @@ export default function PasskeyPage() {
 		});
 	}, []);
 
-	const instruction = mode === "create" ? "Enter your 4-digit passkey" : mode === "confirm" ? "Confirm your 4-digit passkey" : "Enter your 4-digit passkey";
+	// Clear any pending navigation timer if the screen unmounts mid-animation.
+	useEffect(() => {
+		return () => {
+			if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+		};
+	}, []);
+
+	// Announce errors so screen-reader users hear them (iOS doesn't auto-read
+	// live regions the way Android does).
+	useEffect(() => {
+		if (error) AccessibilityInfo.announceForAccessibility(error);
+	}, [error]);
+
+	const instruction = mode === "create" ? "Create a 4-digit passkey" : mode === "confirm" ? "Re-enter your passkey to confirm" : "Enter your passkey";
 
 	const triggerShake = useCallback(() => {
 		shakeAnim.setValue(0);
@@ -88,6 +120,7 @@ export default function PasskeyPage() {
 			successScale.setValue(0.3);
 			successOpacity.setValue(0);
 			triggerSuccessHaptic();
+			AccessibilityInfo.announceForAccessibility("Passkey verified");
 
 			Animated.parallel([
 				Animated.spring(successScale, {
@@ -102,7 +135,7 @@ export default function PasskeyPage() {
 					useNativeDriver: true
 				})
 			]).start(() => {
-				setTimeout(navigate, 550);
+				navTimeoutRef.current = setTimeout(navigate, 550);
 			});
 		},
 		[successOpacity, successScale]
@@ -162,6 +195,7 @@ export default function PasskeyPage() {
 	const appendDigit = useCallback(
 		(digit: string) => {
 			if (isBusy || showSuccess || pin.length >= PASSKEY_LENGTH) return;
+			triggerSelectionHaptic();
 			const next = pin + digit;
 			setPin(next);
 			setError(null);
@@ -173,14 +207,15 @@ export default function PasskeyPage() {
 	);
 
 	const removeDigit = useCallback(() => {
-		if (isBusy || showSuccess) return;
+		if (isBusy || showSuccess || pin.length === 0) return;
+		triggerSelectionHaptic();
 		setPin(current => current.slice(0, -1));
 		setError(null);
-	}, [isBusy, showSuccess]);
+	}, [isBusy, showSuccess, pin.length]);
 
 	return (
 		<GlassScreen title="Passkey" onBack={() => router.back()}>
-			<View style={styles.container}>
+			<View style={[styles.container, { paddingBottom: Math.max(insets.bottom, Spacing.base) }]}>
 				<MotionView enter="fadeUp" duration={280}>
 					<LiquidGlassCard size="large" style={styles.inputPanel}>
 						<Animated.View style={[styles.inputPanelContent, { transform: [{ translateX: shakeAnim }] }]}>
@@ -191,9 +226,12 @@ export default function PasskeyPage() {
 								</Animated.View>
 							) : (
 								<>
-									<Text style={styles.instruction}>{instruction}</Text>
+									<Text style={styles.instruction} accessibilityRole="header">
+										{instruction}
+									</Text>
 									<PinDots filled={pin.length} />
-									{error ? <Text style={styles.errorText}>{error}</Text> : null}
+									{/* Reserve space so the panel doesn't jump when an error appears. */}
+									<View style={styles.errorSlot}>{error ? <Text style={styles.errorText}>{error}</Text> : null}</View>
 								</>
 							)}
 						</Animated.View>
@@ -218,7 +256,7 @@ export default function PasskeyPage() {
 								<MotionView enter="fadeUp" delay={staggerMs(3, 45) + 100} style={styles.keypadRow}>
 									<View style={styles.keySlot} />
 									<PasskeyKey label="0" onPress={() => appendDigit("0")} disabled={isBusy || showSuccess} />
-									<PasskeyKey onPress={removeDigit} disabled={isBusy || showSuccess || pin.length === 0} accessibilityLabel="Delete">
+									<PasskeyKey onPress={removeDigit} disabled={isBusy || showSuccess || pin.length === 0} accessibilityLabel="Delete last digit">
 										<Icon name="backspace-outline" family="ionicons" size={22} color={Colors.text.primary} />
 									</PasskeyKey>
 								</MotionView>
@@ -280,6 +318,11 @@ const styles = StyleSheet.create({
 		backgroundColor: "transparent",
 		borderWidth: 1.5,
 		borderColor: Colors.accent.teal
+	},
+	errorSlot: {
+		minHeight: 18,
+		alignItems: "center",
+		justifyContent: "center"
 	},
 	errorText: {
 		fontSize: 13,
