@@ -15,8 +15,8 @@ export interface GlassTopBarProps {
 const ADD_ICON_SIZE = 24;
 
 const ACTION_HITS = {
-  search: 22,
-  calendar: 29,
+  search: 35,
+  calendar: 35,
   settings: 35,
 } as const;
 
@@ -74,7 +74,10 @@ export function GlassTopBar({
             onPress={onCalendarPress}
             style={[
               styles.actionHit,
-              { width: ACTION_HITS.calendar, height: ACTION_HITS.calendar },
+              {
+                width: ACTION_HITS.calendar,
+                height: ACTION_HITS.calendar,
+              },
             ]}
             haptic="light"
             accessibilityLabel="Year overview"
@@ -140,7 +143,8 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: GlassControl.iconGap,
+    justifyContent: "center",
+    gap: 7,
   },
   actionHit: {
     alignItems: "center",
