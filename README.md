@@ -82,3 +82,52 @@ assets/
 - **Web glass CSS:** `global.css` (`.liquid-glass`, `.liquid-glass-event`, etc.)
 
 Components use **named exports**; only `app/` screens use `default` (Expo Router).
+
+
+
+Search
+The search query will display three hardcoded placeholder events instead of actual events. When tapping on a search result, the user will access a non-existing event that uses the demo data. The user’s search query is not sent to the database – it only filters in memory list.
+Steps to reproduce:
+Creating actual events -> opening the event -> tapping search button -> suggestions are placeholder demo entries -> tapping on one of them will display the demo data.
+
+
+|Cause                   |                                                                                            Where                       |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+|No search overlay suggestions have been rendered; therefore, it defaults to DEFAULT_SUGGESTIONS
+                                                                                                            src/app/event_details.tsx            |
+|Undefined list means defaulting to DEFAULT_SUGGESTIONS fallback
+                                                                                                                   src/app/home.tsx              |
+|The native search source is useEventsByMonth; searches will happen for the current month only; other months cannot be searched
+                                                                                                                   src/app/home.tsx
+|searchEvents() / useSearchEvents() is defined, but not used in any file
+                                                                                                                    src/database/events.ts         |
+|Hardcoded placeholder data lives here
+                                                                                                            src/components/search/Search Overlay.tsx|
+
+Direction of fixing: delete DEFAULT_SUGGESTIONS default value (show the actual empty view), show actual suggestions for showing details and searching by useSearchEvents(query) in order to search all events.
+Event removal doesn't work
+Removal of an event (Event Details -> actions -> Remove) causes the event to be saved in storage but stays in the event list. The event appears only after switching months or refreshing the page. Specific to the web application.
+Reproduction (web): npm run web -> create an event -> navigate to the event -> remove the event -> go back to the Home page and the event is still there.
+
+|Cause                                                                                               |Where|
+--------------------------------------------------------------------------------------------------------------------------------------------
+|DELETE operation executes at the storage |                                                |events.ts / webDb.ts|
+
+level (DELETE FROM events, row is deleted from localStorage)|                                |src/app/home.tsx|
+                       
+| HOME component depends on webEvents / allWebEvents state,                                |src/database/events.ts|
+which is updated due to the effect triggered by 
+[year, month, isWebClient]. 
+Delete operation |doesn’t trigger it|                                                        |src/database/events.ts|                              
+|WEB list gets its data from the state, not from React Query,|
+therefore invalidateQueries in useDeleteEvent is useless|
+|no useFocusEffect to update the list when screen gets focus|                               | src/app/home.tsx|
+|
+|                                                                                                 
+|                                                                                            
+ 
+|                                                                                                 
+Fix direction: refresh the web lists on focus (useFocusEffect re-reading readEventsForMonth / readAllEvents)
+Native invalidates the query Home actually consumesor unify the web path onto React Query so delete invalidation drives the Home list.
+so deletion generally updates correctly there — the visible bug is the web render path.
+
