@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
 		gap: Spacing.sm
 	},
 	successText: {
-		fontSize: 15,
+		fontSize: 16,
 		fontWeight: "600",
 		color: Colors.text.primary,
 		textAlign: "center"
