@@ -57,14 +57,15 @@ assets/
 
 ## Routes
 
-| Path                 | Screen                             |
-| -------------------- | ---------------------------------- |
-| `/`                  | Home — month calendar + day events |
-| `/year_overview`     | 12 mini-month grid                 |
-| `/event_details?id=` | Event detail                       |
-| `/add_event_page`    | Create event (`?id=` for edit)     |
-| `/settings`          | App settings                       |
-| `/passkey_page`      | 4-digit passkey setup / entry      |
+| Path                 | Screen                                             |
+| -------------------- | -------------------------------------------------- |
+| `/`                  | Index - passkey verification/redirect to home page |
+| `/home`              | Month calendar + day events                        |
+| `/year_overview`     | 12 mini-month grid                                 |
+| `/event_details?id=` | Event detail                                       |
+| `/add_event_page`    | Create event (`?id=` for edit)                     |
+| `/settings`          | App settings                                       |
+| `/passkey_page`      | 4-digit passkey setup / entry                      |
 
 ## Data & state
 
