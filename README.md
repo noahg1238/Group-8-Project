@@ -92,18 +92,14 @@ Steps to reproduce:
 Creating actual events -> opening the event -> tapping search button -> suggestions are placeholder demo entries -> tapping on one of them will display the demo data.
 
 
-|Cause                   |                                                                                            Where                       |
--------------------------------------------------------------------------------------------------------------------------------------------------------------
-|No search overlay suggestions have been rendered; therefore, it defaults to DEFAULT_SUGGESTIONS
-                                                                                                            src/app/event_details.tsx            |
-|Undefined list means defaulting to DEFAULT_SUGGESTIONS fallback
-                                                                                                                   src/app/home.tsx              |
-|The native search source is useEventsByMonth; searches will happen for the current month only; other months cannot be searched
-                                                                                                                   src/app/home.tsx
-|searchEvents() / useSearchEvents() is defined, but not used in any file
-                                                                                                                    src/database/events.ts         |
-|Hardcoded placeholder data lives here
-                                                                                                            src/components/search/Search Overlay.tsx|
+| Cause                                                                                                | Where                                                 |
+|------------------------------------------------------------------------------------------------------|------------------------------------------------------ |
+| No search overlay suggestions have been rendered; therefore, it defaults to DEFAULT_SUGGESTIONS      | src/app/event_details.tsx                             |
+| Undefined list means defaulting to DEFAULT_SUGGESTIONS fallback                                      | src/app/home.tsx                                      |
+| The native search source is useEventsByMonth; searches will happen for the current month only;       | src/app/home.tsx                                      |
+| other months cannot be searched                                                                      |                                                       |
+| searchEvents() / useSearchEvents() is defined, but not used in any file                              | src/database/events.ts                                |
+| Hardcoded placeholder data lives here                                                                | src/components/search/Search Overlay.tsx              |
 
 Direction of fixing: delete DEFAULT_SUGGESTIONS default value (show the actual empty view), show actual suggestions for showing details and searching by useSearchEvents(query) in order to search all events.
 Event removal doesn't work
