@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../../global.css";
-import { migrationRunner } from "../database/migrations";
+import { initializeDatabase } from "../database/migrations";
 import { queryClient } from "../database/queryClient";
 import { stackScreenOptions, stackScreens } from "../design/navigation";
 
@@ -12,7 +12,7 @@ export default function RootLayout() {
 	useEffect(() => {
 		async function initDatabase() {
 			try {
-				await migrationRunner.initialize();
+				await initializeDatabase();
 			} catch (error) {
 				console.error("[Layout] Database init failed:", error);
 			}

@@ -1,22 +1,28 @@
 import * as Haptics from "expo-haptics";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback } from "react";
 import {
-	Animated,
-	Pressable,
-	StyleSheet,
-	type PressableProps,
-	type StyleProp,
-	type ViewStyle,
+  Pressable,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { PRESS_SCALE, springPress } from "../../design/motion";
 
 export type HapticStyle = "light" | "medium" | "heavy" | "selection" | "none";
 
-export interface AnimatedPressableProps extends Omit<PressableProps, "style"> {
+export interface AnimatedCalendarPressableProps extends Omit<
+  PressableProps,
+  "style"
+> {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  pressScale?: number; // Target scale when pressed (default 0.97)
-  haptic?: HapticStyle; // Haptic feedback style on press in
+  pressScale?: number;
+  haptic?: HapticStyle;
   disabled?: boolean;
 }
 
@@ -39,7 +45,7 @@ async function triggerHaptic(style: HapticStyle): Promise<void> {
   }
 }
 
-export function AnimatedPressable({
+export function AnimatedCalendarPressable({
   children,
   style,
   pressScale = PRESS_SCALE,
@@ -48,36 +54,32 @@ export function AnimatedPressable({
   onPressIn,
   onPressOut,
   ...props
-}: AnimatedPressableProps) {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+}: AnimatedCalendarPressableProps) {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const handlePressIn = useCallback(
     (event: Parameters<NonNullable<PressableProps["onPressIn"]>>[0]) => {
       if (!disabled) {
-        Animated.spring(scaleAnim, {
-          toValue: pressScale,
-          useNativeDriver: true,
-          ...springPress,
-        }).start();
+        scale.value = withSpring(pressScale, springPress);
         if (haptic !== "none") {
           void triggerHaptic(haptic);
         }
       }
       onPressIn?.(event);
     },
-    [disabled, haptic, onPressIn, pressScale, scaleAnim],
+    [disabled, haptic, onPressIn, pressScale, scale],
   );
 
   const handlePressOut = useCallback(
     (event: Parameters<NonNullable<PressableProps["onPressOut"]>>[0]) => {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        ...springPress,
-      }).start();
+      scale.value = withSpring(1, springPress);
       onPressOut?.(event);
     },
-    [onPressOut, scaleAnim],
+    [onPressOut, scale],
   );
 
   return (
@@ -85,23 +87,10 @@ export function AnimatedPressable({
       disabled={disabled}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      style={styles.pressable}
+      style={style}
       {...props}
     >
-      <Animated.View
-        style={[styles.fill, { transform: [{ scale: scaleAnim }] }, style]}
-      >
-        {children}
-      </Animated.View>
+      <Animated.View style={animatedStyle}>{children}</Animated.View>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  pressable: {
-    alignSelf: "stretch",
-  },
-  fill: {
-    alignSelf: "stretch",
-  },
-});
