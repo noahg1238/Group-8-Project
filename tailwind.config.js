@@ -1,50 +1,50 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: ["./src/**/*.{ts,tsx}"],
-	presets: [require("nativewind/preset")],
-	theme: {
-		extend: {
-			fontSize: {
-				"large-title": [34, { lineHeight: 41 }],
-				"title-1": [28, { lineHeight: 34 }],
-				"title-2": [22, { lineHeight: 28 }],
-				"title-3": [20, { lineHeight: 25 }],
-				headline: [17, { lineHeight: 22, fontWeight: "600" }],
-				body: [17, { lineHeight: 22 }],
-				callout: [16, { lineHeight: 21 }],
-				subheadline: [15, { lineHeight: 20 }],
-				footnote: [13, { lineHeight: 18 }],
-				"caption-1": [12, { lineHeight: 16 }],
-				"caption-2": [11, { lineHeight: 13 }]
-			},
-			spacing: {
-				xs: 4,
-				sm: 8,
-				md: 12,
-				base: 16,
-				lg: 20,
-				xl: 24,
-				"2xl": 32,
-				"3xl": 40,
-				"4xl": 48
-			},
-			borderRadius: {
-				_ios: 10,
-				card: 12,
-				large: 16,
-				glass: 20,
-				event: 22,
-				pill: 9999
-			},
-			boxShadow: {
-				sm: "0 2px 4px rgba(0, 0, 0, 0.15)",
-				card: "0 4px 8px rgba(0, 0, 0, 0.2)",
-				elevated: "0 8px 20px rgba(0, 0, 0, 0.28)",
-				glass: "0 8px 24px rgba(0, 0, 0, 0.25)",
-				floating: "0 8px 30px rgba(0, 0, 0, 0.3)",
-				event: "0 8px 20px rgba(0, 0, 0, 0.28)"
-			}
-		}
-	},
-	plugins: []
+  content: ["./src/**/*.{ts,tsx}"],
+  presets: [require("nativewind/preset")],
+  theme: {
+    extend: {
+      fontSize: {
+        "large-title": [34, { lineHeight: 41 }],
+        "title-1": [28, { lineHeight: 34 }],
+        "title-2": [22, { lineHeight: 28 }],
+        "title-3": [20, { lineHeight: 25 }],
+        headline: [17, { lineHeight: 22, fontWeight: "600" }],
+        body: [17, { lineHeight: 22 }],
+        callout: [16, { lineHeight: 21 }],
+        subheadline: [15, { lineHeight: 20 }],
+        footnote: [13, { lineHeight: 18 }],
+        "caption-1": [12, { lineHeight: 16 }],
+        "caption-2": [11, { lineHeight: 13 }],
+      },
+      spacing: {
+        xs: 4,
+        sm: 8,
+        md: 12,
+        base: 16,
+        lg: 20,
+        xl: 24,
+        "2xl": 32,
+        "3xl": 40,
+        "4xl": 48,
+      },
+      borderRadius: {
+        _ios: 10,
+        card: 12,
+        large: 16,
+        glass: 20,
+        event: 22,
+        pill: 9999,
+      },
+      boxShadow: {
+        sm: "0 2px 4px rgba(0, 0, 0, 0.15)",
+        card: "0 4px 8px rgba(0, 0, 0, 0.2)",
+        elevated: "0 8px 20px rgba(0, 0, 0, 0.28)",
+        glass: "0 8px 24px rgba(0, 0, 0, 0.25)",
+        floating: "0 8px 30px rgba(0, 0, 0, 0.3)",
+        event: "0 8px 20px rgba(0, 0, 0, 0.28)",
+      },
+    },
+  },
+  plugins: [],
 };
