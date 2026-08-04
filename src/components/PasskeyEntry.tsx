@@ -51,7 +51,7 @@ const PasskeyEntry = () => {
         style={styles.input}
       />
       {error && <Text style={styles.error}>{error}</Text>}
-      <Link href="/home">
+      <Link href="/home" style={{ paddingTop: 12 }}>
         <Text style={styles.forgotpw}>forgot passkey?</Text>
       </Link>
       {/* Left in as failsafe */}
